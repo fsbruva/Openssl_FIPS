@@ -193,7 +193,7 @@ jobs:
         
         Expected SHA256: $expectedHash
         Actual SHA256:   $actualHash
-        Verification:    $(if ($actualHash -eq $expectedHash) { "✓ PASSED" } else { "✗ FAILED" })
+        Verification:    $(if ($actualHash -eq $expectedHash) { "PASSED" } else { "FAILED" })
         
         "@ | Out-File -FilePath $manifestPath -Append -Encoding utf8
         
@@ -241,7 +241,7 @@ jobs:
         
         Expected SHA256: $expectedHash
         Actual SHA256:   $actualHash
-        Verification:    $(if ($actualHash -eq $expectedHash) { "✓ PASSED" } else { "✗ FAILED" })
+        Verification:    $(if ($actualHash -eq $expectedHash) { "PASSED" } else { "FAILED" })
         
         "@ | Out-File -FilePath $manifestPath -Append -Encoding utf8
         
@@ -637,7 +637,7 @@ jobs:
         # Verify installation
         wix --version
         
-        Write-Host "✅ WiX 6.0 installed successfully" -ForegroundColor Green
+        Write-Host "WiX 6.0 installed successfully" -ForegroundColor Green
       shell: powershell
 
     - name: Build WiX 6 MSI Installer
@@ -654,11 +654,11 @@ jobs:
         dotnet build Openssl_FIPS.wixproj -c Release
         
         if ($LASTEXITCODE -ne 0) {
-          Write-Host "❌ WiX build failed!" -ForegroundColor Red
+          Write-Host "ERROR - WiX build failed!" -ForegroundColor Red
           exit 1
         }
         
-        Write-Host "`n✅ MSI installer built successfully" -ForegroundColor Green
+        Write-Host "`nSUCCESS! MSI installer built successfully" -ForegroundColor Green
         
         # Find the generated MSI
         $msiPath = Get-ChildItem -Path . -Recurse -Filter "*.msi" | Select-Object -First 1
@@ -674,7 +674,7 @@ jobs:
           Copy-Item $msiPath.FullName -Destination $newName
           Write-Host "`n  Renamed to: $newName" -ForegroundColor Green
         } else {
-          Write-Host "❌ MSI file not found after build!" -ForegroundColor Red
+          Write-Host "ERROR - MSI file not found after build!" -ForegroundColor Red
           exit 1
         }
       shell: powershell
@@ -705,27 +705,27 @@ jobs:
           **Build Date:** ${{ github.event.head_commit.timestamp }}
           **Installer:** WiX Toolset 6.0
           
-          ### 🔒 FIPS Compliance
+          ### FIPS Compliance
           
           This build includes cryptographic verification of all source code:
-          - ✅ All source tarballs verified against official OpenSSL.org SHA256 hashes
-          - ✅ No source code modifications
-          - ✅ NIST FIPS 140-3 compliant build process
-          - ✅ FIPS module self-test verification passed
+          -  All source tarballs verified against official OpenSSL.org SHA256 hashes
+          -  No source code modifications
+          -  NIST FIPS 140-3 compliant build process
+          -  FIPS module self-test verification passed
           
-          ### 📋 Verification Evidence
+          ### Verification Evidence
           
           Download the following artifacts for complete verification records:
           - `fips-verification-manifest`: Complete source verification details
           - `cryptographic-attestation`: Build attestation document
           
-          ### 📦 Installation
+          ### Installation
           
           1. Download the MSI installer
           2. Run as Administrator
           3. Access via Start Menu → OpenSSL FIPS
           
-          ### 📄 Included Files
+          ### Included Files
           
           - OpenSSL executable (`openssl.exe`)
           - FIPS provider module (`fips.dll`)
@@ -734,7 +734,7 @@ jobs:
           - Source verification manifest
           - Cryptographic attestation
           
-          ### 🛠️ Build System
+          ### Build System
           
           - Built with WiX Toolset 6.0
           - .NET 9 SDK
