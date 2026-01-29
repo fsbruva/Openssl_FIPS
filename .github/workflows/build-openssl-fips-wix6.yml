@@ -374,12 +374,24 @@ jobs:
         Copy-Item "openssl.cnf" "$env:FINAL_OPENSSLDIR\" -Force
         Write-Host "Installed openssl.cnf" -ForegroundColor Green
 
+        # Change to OpenSSL directory
+        Push-Location "C:\Program Files\OpenSSL"
+
         # Generate fipsmodule.cnf with HMAC
         Write-Host "`nGenerating FIPS module configuration with HMAC..." -ForegroundColor Cyan
-        & "$env:FINAL_OPENSSLDIR\openssl.exe" fipsinstall `
-          -out "$env:FINAL_OPENSSLDIR\fipsmodule.cnf" `
-          -module "$env:FINAL_OPENSSLDIR\lib\ossl-modules\fips.dll" `
+        #& "$env:FINAL_OPENSSLDIR\openssl.exe" fipsinstall `
+        #  -out "$env:FINAL_OPENSSLDIR\fipsmodule.cnf" `
+        #  -module "$env:FINAL_OPENSSLDIR\lib\ossl-modules\fips.dll" `
+        #  -self_test_onload
+
+        # Run fipsinstall with relative paths (relative to OpenSSL directory)
+        & ".\openssl.exe" fipsinstall `
+          -out "fipsmodule.cnf" `
+          -module "lib\ossl-modules\fips.dll" `
           -self_test_onload
+
+        # Return to previous directory
+        Pop-Location
 
         if ($LASTEXITCODE -ne 0) {
           Write-Host "FIPS module configuration generation failed!" -ForegroundColor Red
