@@ -478,22 +478,31 @@ jobs:
         
         # OpenSSL binaries are installed in $env:FINAL_OPENSSLDIR
         
-        # Copy openssl.exe from install directory to staging directory
-        if (Test-Path "$env:FINAL_OPENSSLDIR\bin\openssl.exe") {
+        # Copy openssl.exe from root directory (it was moved out of bin\ earlier)
+        if (Test-Path "$env:FINAL_OPENSSLDIR\openssl.exe") {
           Copy-Item "$env:FINAL_OPENSSLDIR\openssl.exe" -Destination "$env:STAGING_DIR\" -Force
           Write-Host "Copied openssl.exe to staging root" -ForegroundColor Green
+        } else {
+          Write-Host "ERROR: openssl.exe not found at $env:FINAL_OPENSSLDIR\openssl.exe" -ForegroundColor Red
+          exit 1
         }
         
         # Copy fips.dll from install directory to staging directory
         if (Test-Path "$env:FINAL_OPENSSLDIR\lib\ossl-modules\fips.dll") {
           Copy-Item "$env:FINAL_OPENSSLDIR\lib\ossl-modules\fips.dll" -Destination "$env:STAGING_DIR\lib\ossl-modules\" -Force
-          Write-Host "Copied fips.dll to staging root" -ForegroundColor Green
+          Write-Host "Copied fips.dll to staging" -ForegroundColor Green
+        } else {
+          Write-Host "ERROR: fips.dll not found" -ForegroundColor Red
+          exit 1
         }
 
         # Copy fipsmodule.cnf from install directory to staging directory
-        if (Test-Path "$env:FINAL_OPENSSLDIR\fipsmodule.CNF") {
-          Copy-Item "$env:FINAL_OPENSSLDIR\fipsmodule.CNF" -Destination "$env:STAGING_DIR\" -Force
-          Write-Host "Copied fipsmodule.CNF to staging root" -ForegroundColor Green
+        if (Test-Path "$env:FINAL_OPENSSLDIR\fipsmodule.cnf") {
+          Copy-Item "$env:FINAL_OPENSSLDIR\fipsmodule.cnf" -Destination "$env:STAGING_DIR\" -Force
+          Write-Host "Copied fipsmodule.cnf to staging" -ForegroundColor Green
+        } else {
+          Write-Host "ERROR: fipsmodule.cnf not found" -ForegroundColor Red
+          exit 1
         }
 
         # Copy static config files from repo
