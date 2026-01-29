@@ -1,7 +1,6 @@
-name: Build OpenSSL FIPS (WiX 6 - FIPS Verified)
+name: Build OpenSSL FIPS (Windows x64)
 
-# WiX Toolset 6.0 Build with FIPS-Compliant Hash Verification
-# OpenSSL 3.5.5 with FIPS Module 3.1.2
+# WiX Toolset Build with FIPS-Compliant Hash Verification
 
 on:
   push:
@@ -10,34 +9,32 @@ on:
       - 'v*'
   pull_request:
     branches: [ main ]
-  workflow_dispatch:
-    inputs:
-      openssl_version:
-        description: 'OpenSSL version to build'
-        required: false
-        default: '3.5.5'
-      fips_version:
-        description: 'FIPS module version'
-        required: false
-        default: '3.1.2'
 
 env:
-  OPENSSL_VERSION: ${{ github.event.inputs.openssl_version || '3.5.5' }}
-  FIPS_VERSION: ${{ github.event.inputs.fips_version || '3.1.2' }}
-  BUILD_DIR: C:\mount\build
-  STAGING_DIR: C:\mount\OpenSSL_FIPS
+  # Official OpenSSL SHA256 hashes from https://www.openssl.org/source/
+  # IMPORTANT: Update these when changing versions
+  OPENSSL_VERSION: '3.5.5'
+  OPENSSL_SHA256: "b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89"
+
+  FIPS_VERSION: '3.1.2'
+  FIPS_SHA256: "a0ce69b8b97ea6a35b96875235aa453b966ba3cba8af2de23657d8b6767d6539"
+
+  # FIPS Module must be certified by NIST, so the FIPS module will rarely change
+
+  ###################################################################################
+
+  BUILD_DIR: C:\build\src
+  STAGING_DIR: C:\build\OpenSSL_FIPS
   
   # OpenSSL configure uses these for runtime paths (where it will be installed on target system)
   FINAL_PREFIX: 'C:\Program Files\OpenSSL'
   FINAL_OPENSSLDIR: 'C:\Program Files\OpenSSL'
-  
-  # Official OpenSSL SHA256 hashes from https://www.openssl.org/source/
-  # IMPORTANT: Update these when changing versions
-  # OpenSSL 3.5.5: Get from https://www.openssl.org/source/openssl-3.5.5.tar.gz.sha256
-  # FIPS 3.1.2: Get from https://www.openssl.org/source/openssl-3.1.2.tar.gz.sha256
-  OPENSSL_3_5_5_SHA256: "b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89"
-  FIPS_3_1_2_SHA256: "a0ce69b8b97ea6a35b96875235aa453b966ba3cba8af2de23657d8b6767d6539"
 
+  # Tooling versions (discovered at runtime)
+  WIX_VERSION: ""
+  DOTNET_VERSION: ""
+  VS_VERSION: ""
+    
 jobs:
   verify-and-build-openssl-fips:
     runs-on: windows-latest
@@ -54,23 +51,6 @@ jobs:
       with:
         arch: x64
         
-    - name: Install WiX Toolset 6
-      run: |
-        Write-Host "Installing WiX Toolset 6.0..." -ForegroundColor Cyan
-        dotnet tool install --global wix --version 6.0.0
-        
-        # Verify installation
-        wix --version
-        
-        Write-Host "WiX 6.0 installed successfully" -ForegroundColor Green
-      shell: powershell
-
-#    - name: Install Strawberry Perl
-#      run: |
-#        choco install strawberryperl -y
-#        refreshenv
-#      shell: powershell
-
     - name: Verify build tools
       run: |
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -142,9 +122,9 @@ jobs:
         
         Build Tools:
         ------------------
-        WiX Toolset: 6.0.0
-        .NET SDK: $(dotnet --version)
-        Visual Studio: 2022
+        WiX Toolset: $env.WIX_VERSION
+        .NET SDK: $env.DOTNET_VERSION
+        Visual Studio: $env:VS_VERSION
         
         ========================================================================
         CRYPTOGRAPHIC VERIFICATION
@@ -165,7 +145,7 @@ jobs:
         Write-Host "DOWNLOADING FIPS MODULE SOURCE" -ForegroundColor Cyan
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host "URL: $fipsUrl"
-        Write-Host "Expected SHA256: $env:FIPS_3_1_2_SHA256"
+        Write-Host "Expected SHA256: $env:FIPS_SHA256"
         Write-Host ""
         
         # Download
@@ -173,7 +153,7 @@ jobs:
         
         # Calculate actual hash
         $actualHash = (Get-FileHash -Path $fipsFile -Algorithm SHA256).Hash.ToLower()
-        $expectedHash = $env:FIPS_3_1_2_SHA256.ToLower()
+        $expectedHash = $env:FIPS_SHA256.ToLower()
         
         # Log to manifest
         @"
@@ -213,7 +193,7 @@ jobs:
         Write-Host "DOWNLOADING OPENSSL SOURCE" -ForegroundColor Cyan
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host "URL: $opensslUrl"
-        Write-Host "Expected SHA256: $env:OPENSSL_3_5_5_SHA256"
+        Write-Host "Expected SHA256: $env:OPENSSL_SHA256"
         Write-Host ""
         
         # Download
@@ -221,7 +201,7 @@ jobs:
         
         # Calculate actual hash
         $actualHash = (Get-FileHash -Path $opensslFile -Algorithm SHA256).Hash.ToLower()
-        $expectedHash = $env:OPENSSL_3_5_5_SHA256.ToLower()
+        $expectedHash = $env:OPENSSL_SHA256.ToLower()
         
         # Log to manifest
         @"
@@ -288,7 +268,6 @@ jobs:
     - name: Build FIPS Module
       run: |
         cd /d "%BUILD_DIR%\openssl-%FIPS_VERSION%"
-        cd /d "%BUILD_DIR%\openssl-%FIPS_VERSION%"
         if %ERRORLEVEL% NEQ 0 (
           echo ERROR: Failed to change to FIPS source directory
           exit /b 1
@@ -341,10 +320,10 @@ jobs:
         if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
         
         REM Copy FIPS module from Program Files (already built)
-        copy "C:\Program Files\OpenSSL\lib\ossl-modules\fips.dll" providers\
+        copy "%FINAL_OPENSSLDIR%\lib\ossl-modules\fips.dll" providers\
         if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
-        copy "C:\Program Files\OpenSSL\fipsmodule.cnf" providers\
+        copy "%FINAL_OPENSSLDIR%\fipsmodule.cnf" providers\
         if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
 
         nmake test
@@ -367,22 +346,16 @@ jobs:
         # Move openssl binary
         Move-Item "$env:FINAL_OPENSSLDIR\bin\openssl.exe" "$env:FINAL_OPENSSLDIR\openssl.exe" -Force
         Write-Host "Moved openssl.exe to root directory" -ForegroundColor Green
-        # Remove empty bin directory
-        #Remove-Item "C:\Program Files\OpenSSL\bin" -Force -ErrorAction SilentlyContinue
         
         # Copy openssl.cnf from repository
         Copy-Item "openssl.cnf" "$env:FINAL_OPENSSLDIR\" -Force
         Write-Host "Installed openssl.cnf" -ForegroundColor Green
 
         # Change to OpenSSL directory
-        Push-Location "C:\Program Files\OpenSSL"
+        Push-Location "$env:FINAL_OPENSSLDIR"
 
         # Generate fipsmodule.cnf with HMAC
         Write-Host "`nGenerating FIPS module configuration with HMAC..." -ForegroundColor Cyan
-        #& "$env:FINAL_OPENSSLDIR\openssl.exe" fipsinstall `
-        #  -out "$env:FINAL_OPENSSLDIR\fipsmodule.cnf" `
-        #  -module "$env:FINAL_OPENSSLDIR\lib\ossl-modules\fips.dll" `
-        #  -self_test_onload
 
         # Run fipsinstall with relative paths (relative to OpenSSL directory)
         & ".\openssl.exe" fipsinstall `
@@ -523,7 +496,7 @@ jobs:
         Build Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
         Build ID: ${{ github.run_number }}
         Commit: ${{ github.sha }}
-        WiX Version: 6.0.0
+        WiX Version: ${{ env.WIX_VERSION }}
         
         Installation Notes:
         -------------------
@@ -548,7 +521,7 @@ jobs:
         Write-Host "========================================" -ForegroundColor Cyan
         
         # Change to OpenSSL directory
-        Push-Location "C:\Program Files\OpenSSL"
+        Push-Location "$env:FINAL_OPENSSLDIR"
 
         Write-Host "`nOpenSSL Version:"
         .\openssl.exe version
@@ -608,7 +581,7 @@ jobs:
         Architecture: x64
         Configuration: Release
         Flags: enable-fips, no-shared, no-legacy
-        Installer: WiX Toolset 6.0.0
+        Installer: WiX Toolset ${{ env.DOTNET_VERSION }}
         
         Installation Paths:
         ------------------
@@ -629,21 +602,21 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: openssl-fips-binaries
-        path: C:\mount\OpenSSL_FIPS\
+        path: C:\build\OpenSSL_FIPS\
         retention-days: 30
 
     - name: Upload verification manifest
       uses: actions/upload-artifact@v4
       with:
         name: fips-verification-manifest
-        path: C:\mount\OpenSSL_FIPS\source-verification.txt
+        path: C:\build\OpenSSL_FIPS\source-verification.txt
         retention-days: 90
 
     - name: Upload cryptographic attestation
       uses: actions/upload-artifact@v4
       with:
         name: cryptographic-attestation
-        path: C:\mount\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt
+        path: C:\build\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt
         retention-days: 90
 
   build-installer:
@@ -658,7 +631,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: openssl-fips-binaries
-        path: C:\mount\OpenSSL_FIPS
+        path: C:\build\OpenSSL_FIPS
 
     - name: Verify downloaded artifacts
       run: |
@@ -667,40 +640,47 @@ jobs:
         Write-Host "========================================" -ForegroundColor Cyan
         
         Write-Host "`nArtifact contents:"
-        Get-ChildItem -Recurse C:\mount\OpenSSL_FIPS | Format-Table Name, Length, LastWriteTime
+        Get-ChildItem -Recurse C:\build\OpenSSL_FIPS | Format-Table Name, Length, LastWriteTime
         
         Write-Host "`n========================================" -ForegroundColor Cyan
         Write-Host "Build Information:"
-        Get-Content C:\mount\OpenSSL_FIPS\BUILD_INFO.txt
+        Get-Content C:\build\OpenSSL_FIPS\BUILD_INFO.txt
         
         Write-Host "`n========================================" -ForegroundColor Cyan
         Write-Host "Cryptographic Attestation:"
-        Get-Content C:\mount\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt
+        Get-Content C:\build\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt
       shell: powershell
 
-    - name: Install .NET 9 SDK (for WiX 6)
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '9.0.x'
-
-    - name: Install WiX Toolset 6
+    - name: Install WiX Toolset
       run: |
-        Write-Host "Installing WiX Toolset 6.0..." -ForegroundColor Cyan
-        dotnet tool install --global wix --version 6.0.0
+        Write-Host "Installing WiX Toolset..." -ForegroundColor Cyan
+        dotnet tool install --global wix
         
         # Add to PATH for current session
         $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
         
         # Verify installation
-        wix --version
-        
-        Write-Host "WiX 6.0 installed successfully" -ForegroundColor Green
+        $wixVersion = wix --version
+        echo "WIX_VERSION=$wixVersion" >> $env:GITHUB_ENV        
+        Write-Host "WiX $wixVersion installed successfully" -ForegroundColor Green
       shell: powershell
 
-    - name: Build WiX 6 MSI Installer
+    - name: Capture build other toolchain versions
+      shell: powershell
+      run: |
+        # .NET SDK
+        $dotnetVersion = dotnet --version
+        echo "DOTNET_VERSION=$dotnetVersion" >> $env:GITHUB_ENV
+
+        # Visual Studio (authoritative)
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsVersion = & $vswhere -latest -property displayName
+        echo "VS_VERSION=$vsVersion" >> $env:GITHUB_ENV
+
+    - name: Build WiX MSI Installer
       run: |
         Write-Host "========================================" -ForegroundColor Cyan
-        Write-Host "BUILDING MSI INSTALLER (WiX 6)" -ForegroundColor Cyan
+        Write-Host "BUILDING MSI INSTALLER (WiX)" -ForegroundColor Cyan
         Write-Host "========================================" -ForegroundColor Cyan
         
         # Ensure WiX is in PATH
@@ -757,10 +737,10 @@ jobs:
         body: |
           ## OpenSSL FIPS Build - Cryptographically Verified
           
-          **OpenSSL Version:** 3.5.5
-          **FIPS Module Version:** 3.1.2
+          **OpenSSL Version:** ${{ env.OPENSSL_VERSION }}
+          **FIPS Module Version:** ${{ env.FIPS_VERSION }}
           **Build Date:** ${{ github.event.head_commit.timestamp }}
-          **Installer:** WiX Toolset 6.0
+          **Installer:** WiX Toolset ${{ env.WIX_VERSION }}
           
           ### FIPS Compliance
           
@@ -791,11 +771,11 @@ jobs:
           - Source verification manifest
           - Cryptographic attestation
           
-          ### Build System
-          
-          - Built with WiX Toolset 6.0
-          - .NET 9 SDK
-          - Visual Studio 2022
-          - GitHub Actions (Windows Server 2022)
+          ### Build Environment
+          - OpenSSL ${{ env.OPENSSL_VERSION }} (FIPS ${{ env.FIPS_VERSION }})
+          - WiX Toolset ${{ env.WIX_VERSION }}
+          - .NET SDK ${{ env.DOTNET_VERSION }}
+          - Visual Studio: ${{ env.VS_VERSION }}
+          - GitHub Runner: ${{ runner.os }} / ${{ runner.arch }} (${{ runner.name }})
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

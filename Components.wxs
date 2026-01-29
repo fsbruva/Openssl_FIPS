@@ -10,25 +10,25 @@
 		  </Component>
 
 		  <Component Id="OpensslCnf" Guid="FA1803BF-2E61-425C-875E-F48170C66665">
-			  <File Id="oConf" Name="openssl.cnf" Source="C:\mount\OpenSSL_FIPS\openssl.cnf" />
+			  <File Id="oConf" Name="openssl.cnf" Source="C:\build\OpenSSL_FIPS\openssl.cnf" />
 		  </Component>
 
 		  <Component Id="FipsModuleCnf" Guid="8B62B2F7-B0A0-42AE-9C0D-4761255E8451">
-			  <File Id="fConf" Name="fipsmodule.CNF" Source="C:\mount\OpenSSL_FIPS\fipsmodule.cnf" />
+			  <File Id="fConf" Name="fipsmodule.CNF" Source="C:\build\OpenSSL_FIPS\fipsmodule.cnf" />
 		  </Component>
 
 		  <Component Id="ShellWrapper" Guid="EAD69737-7977-4E4E-B511-089CF568FFDF">
-			  <File Id="BAT" Name="OpenSSL_Start.bat" Source="C:\mount\OpenSSL_FIPS\OpenSSL_Start.bat" />
+			  <File Id="BAT" Name="OpenSSL_Start.bat" Source="C:\build\OpenSSL_FIPS\OpenSSL_Start.bat" />
 		  </Component>
 
 		  <Component Id="MainExecutable" Guid="B26AA781-3B21-4A69-925E-BA716F47AD53">
-			  <File Id="EXE" Name="openssl.exe" Source="C:\mount\OpenSSL_FIPS\openssl.exe" />
+			  <File Id="EXE" Name="openssl.exe" Source="C:\build\OpenSSL_FIPS\openssl.exe" />
 		  </Component>
 	  </ComponentGroup>
 
 	  <ComponentGroup Id="ProductModules" Directory="OSSLModulesFolder">
 		  <Component Id="FipsModule" Guid="13E07CC8-19BA-4401-9C3A-2950A61DBE29">
-			  <File Id="FipsDLL" Name="fips.dll" Source="C:\mount\OpenSSL_FIPS\lib\ossl-modules\fips.dll" />
+			  <File Id="FipsDLL" Name="fips.dll" Source="C:\build\OpenSSL_FIPS\lib\ossl-modules\fips.dll" />
 		  </Component>
 	  </ComponentGroup>
 
