@@ -60,7 +60,21 @@ jobs:
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
+
+    - name: Install WiX Toolset
+      run: |
+        Write-Host "Installing WiX Toolset..." -ForegroundColor Cyan
+        dotnet tool install --global wix
         
+        # Add to PATH for current session
+        $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+        
+        # Verify installation
+        $wixVersion = wix --version
+        echo "WIX_VERSION=$wixVersion" >> $env:GITHUB_ENV        
+        Write-Host "WiX $wixVersion installed successfully" -ForegroundColor Green
+      shell: powershell
+    
     - name: Verify build tools
       run: |
         $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
@@ -76,12 +90,17 @@ jobs:
         where.exe perl
         perl --version | Select-Object -First 2
         
-        Write-Host "`n.NET SDK:"
-        dotnet --version
-        
-        Write-Host "`nWiX:"
-        wix --version
-        
+        $dotnetVersion = dotnet --version
+        echo "DOTNET_VERSION=$dotnetVersion" >> $env:GITHUB_ENV
+        Write-Host "`n.NET SDK: ${env.DOTNET_VERSION}"
+      
+        Write-Host "`nWiX: ${env.WIX_VERSION}"
+   
+        # Visual Studio (authoritative)
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsVersion = & $vswhere -latest -property displayName
+        echo "VS_VERSION=$vsVersion" >> $env:GITHUB_ENV
+        Write-Host "`nVisual Studio: ${env.VS_VERSION}"  
       shell: powershell
 
     - name: Create build, staging and install directories
@@ -660,32 +679,6 @@ jobs:
         Write-Host "Cryptographic Attestation:"
         Get-Content C:\build\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt
       shell: powershell
-
-    - name: Install WiX Toolset
-      run: |
-        Write-Host "Installing WiX Toolset..." -ForegroundColor Cyan
-        dotnet tool install --global wix
-        
-        # Add to PATH for current session
-        $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
-        
-        # Verify installation
-        $wixVersion = wix --version
-        echo "WIX_VERSION=$wixVersion" >> $env:GITHUB_ENV        
-        Write-Host "WiX $wixVersion installed successfully" -ForegroundColor Green
-      shell: powershell
-
-    - name: Capture build other toolchain versions
-      shell: powershell
-      run: |
-        # .NET SDK
-        $dotnetVersion = dotnet --version
-        echo "DOTNET_VERSION=$dotnetVersion" >> $env:GITHUB_ENV
-
-        # Visual Studio (authoritative)
-        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-        $vsVersion = & $vswhere -latest -property displayName
-        echo "VS_VERSION=$vsVersion" >> $env:GITHUB_ENV
 
     - name: Build WiX MSI Installer
       run: |
