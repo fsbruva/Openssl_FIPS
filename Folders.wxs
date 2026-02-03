@@ -1,3 +1,12 @@
+<!--
+  OpenSSL FIPS Installer - Folder Definitions
+  
+  Copyright (c) 2026 Matthew Kempe @fsbruva
+  SPDX-License-Identifier: Apache-2.0
+  
+  Repository: https://github.com/fsbruva/Openssl_FIPS
+-->
+
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <StandardDirectory Id="ProgramFiles64Folder">

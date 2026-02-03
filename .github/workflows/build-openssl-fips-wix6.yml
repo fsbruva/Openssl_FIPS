@@ -1,3 +1,8 @@
+# Copyright (c) 2026 Matthew Kempe (@fsbruva)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Repository: https://github.com/fsbruva/Openssl_FIPS
+
 name: Build OpenSSL FIPS (Windows x64)
 
 # WiX Toolset Build with FIPS-Compliant Hash Verification
@@ -542,6 +547,168 @@ jobs:
         Get-ChildItem -Recurse "$env:STAGING_DIR" | Format-Table Name, Length, Directory
       shell: powershell
 
+    - name: Add license and legal files
+      run: |
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "ADDING LICENSE FILES" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host ""
+        
+        # Create OpenSSL License file (Apache 2.0)
+        $opensslLicense = @"
+        Apache License
+        Version 2.0, January 2004
+        http://www.apache.org/licenses/
+
+        TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+        Copyright (c) 1998-2024 The OpenSSL Project
+        All rights reserved.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+        ================================================================================
+
+        This product includes software developed by the OpenSSL Project
+        for use in the OpenSSL Toolkit (https://www.openssl.org/).
+
+        This product includes cryptographic software written by Eric Young
+        (eay@cryptsoft.com) and software written by Tim Hudson (tjh@cryptsoft.com).
+
+        OpenSSL Version: $env:OPENSSL_VERSION
+        FIPS Module Version: $env:FIPS_VERSION
+        Build Date: $(Get-Date -Format "yyyy-MM-dd")
+
+        For the complete Apache 2.0 license text, visit:
+        https://www.apache.org/licenses/LICENSE-2.0.txt
+
+        For OpenSSL project information:
+        https://www.openssl.org/
+        "@
+        $opensslLicense | Out-File -FilePath "$env:STAGING_DIR\OPENSSL_LICENSE.txt" -Encoding utf8
+        Write-Host "Created OPENSSL_LICENSE.txt" -ForegroundColor Green
+        
+        # Create Third-Party Notices file
+        $thirdPartyNotices = @"
+        ================================================================================
+        THIRD-PARTY SOFTWARE NOTICES AND INFORMATION
+        ================================================================================
+
+        This installer package includes software from the following third-party sources:
+
+        ================================================================================
+        1. OpenSSL Toolkit
+        ================================================================================
+
+        OpenSSL Version: $env:OPENSSL_VERSION
+        Copyright (c) 1998-2024 The OpenSSL Project
+        All rights reserved.
+
+        Licensed under the Apache License, Version 2.0 (the "License");
+        you may not use this file except in compliance with the License.
+        You may obtain a copy of the License at:
+
+            http://www.apache.org/licenses/LICENSE-2.0
+
+        Unless required by applicable law or agreed to in writing, software
+        distributed under the License is distributed on an "AS IS" BASIS,
+        WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+        See the License for the specific language governing permissions and
+        limitations under the License.
+
+        Website: https://www.openssl.org/
+        Source Code: https://github.com/openssl/openssl
+
+        This product includes software developed by the OpenSSL Project for use
+        in the OpenSSL Toolkit (https://www.openssl.org/).
+
+        This product includes cryptographic software written by Eric Young
+        (eay@cryptsoft.com) and software written by Tim Hudson (tjh@cryptsoft.com).
+
+        For the full OpenSSL license text, see OPENSSL_LICENSE.txt
+
+        ================================================================================
+        2. OpenSSL FIPS Provider Module
+        ================================================================================
+
+        FIPS Module Version: $env:FIPS_VERSION
+        Copyright (c) 1998-2024 The OpenSSL Project
+
+        Part of the OpenSSL Project
+        Licensed under the Apache License, Version 2.0
+
+        This module has been built for conformance with FIPS 140-3 requirements.
+
+        FIPS Compliance Information:
+        - All source code cryptographically verified
+        - Built using validated build process
+        - Self-test verification implemented
+        - Complete build provenance available
+
+        For validation status and certificates, visit:
+        https://csrc.nist.gov/projects/cryptographic-module-validation-program
+
+        For the full license, see OPENSSL_LICENSE.txt
+
+        ================================================================================
+        Installer Package
+        ================================================================================
+
+        This installer package (WiX source code, build scripts, and workflows) may be
+        subject to separate licensing terms from your organization.
+
+        Build Information:
+        - Build Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
+        - Build ID: ${{ github.run_number }}
+        - Workflow: ${{ github.workflow }}
+        - Commit: ${{ github.sha }}
+
+        Complete build provenance is available in BUILD_INFO.txt and 
+        CRYPTOGRAPHIC_ATTESTATION.txt
+
+        ================================================================================
+        Attribution Requirements
+        ================================================================================
+
+        When redistributing this software, you must:
+
+        1. Retain all copyright notices and license information
+        2. Include a copy of the Apache License, Version 2.0
+        3. Provide attribution to the OpenSSL Project
+        4. Include this THIRD_PARTY_NOTICES.txt file
+
+        For any questions about licensing or attribution, please refer to:
+        - OpenSSL License: https://www.openssl.org/source/license.html
+        - Apache 2.0 License: https://www.apache.org/licenses/LICENSE-2.0
+
+        ================================================================================
+        End of Third-Party Notices
+        ================================================================================
+        "@
+        $thirdPartyNotices | Out-File -FilePath "$env:STAGING_DIR\THIRD_PARTY_NOTICES.txt" -Encoding utf8
+        Write-Host "Created THIRD_PARTY_NOTICES.txt" -ForegroundColor Green
+        
+        # Copy project's LICENSE file
+        if (Test-Path "LICENSE") {
+           Copy-Item "LICENSE" -Destination "$env:STAGING_DIR\LICENSE.txt" -Force
+        Write-Host "Copied LICENSE.txt from repository" -ForegroundColor Green
+        }
+
+        Write-Host ""
+        Write-Host "License files created successfully" -ForegroundColor Green
+      shell: powershell
+
+
     - name: Verify FIPS configuration
       run: |
         
@@ -686,8 +853,8 @@ jobs:
         WiX Toolset:      $env:WIX_VERSION
         .NET SDK:         $env:DOTNET_VERSION
         Visual Studio:    $env:VS_VERSION
-        Perl:             $(perl --version | Select-String "This is perl" | Out-String).Trim()
-        NASM:             $(nasm -v | Out-String).Trim()
+        Perl:             $(perl --version | Select-String "This is perl" | Out-String)
+        NASM:             $(nasm -v | Out-String)
 
         Build Configuration:
         --------------------

@@ -1,4 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  OpenSSL FIPS Installer - Component Definitions
+  
+  Copyright (c) 2026 Matthew Kempe @fsbruva
+  SPDX-License-Identifier: Apache-2.0
+
+  Repository: https://github.com/fsbruva/Openssl_FIPS
+-->
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <?ifndef StagingDir?>
+    <?define StagingDir = "C:\build\OpenSSL_FIPS" ?>
+  <?endif?>
+  
   <Fragment>
 	  <ComponentGroup Id="ProductComponents" Directory="INSTALLFOLDER">
 		  <Component Id="INSTALLFOLDER" Guid="DE1B3FCE-4BA2-4379-A092-4E6AC846ED38">
@@ -9,47 +22,61 @@
 							 Type="string" Value="" />
 		  </Component>
 
+		  <!-- Core OpenSSL Files -->
+		  <Component Id="MainExecutable" Guid="B26AA781-3B21-4A69-925E-BA716F47AD53">
+			  <File Id="EXE" Name="openssl.exe" Source="$(var.StagingDir)\openssl.exe" />
+		  </Component>
+
 		  <Component Id="OpensslCnf" Guid="FA1803BF-2E61-425C-875E-F48170C66665">
-			  <File Id="oConf" Name="openssl.cnf" Source="C:\build\OpenSSL_FIPS\openssl.cnf" />
+			  <File Id="oConf" Name="openssl.cnf" Source="$(var.StagingDir)\openssl.cnf" />
 		  </Component>
 
 		  <Component Id="FipsModuleCnf" Guid="8B62B2F7-B0A0-42AE-9C0D-4761255E8451">
-			  <File Id="fConf" Name="fipsmodule.CNF" Source="C:\build\OpenSSL_FIPS\fipsmodule.cnf" />
+			  <File Id="fConf" Name="fipsmodule.cnf" Source="$(var.StagingDir)\fipsmodule.cnf" />
 		  </Component>
 
 		  <Component Id="ShellWrapper" Guid="EAD69737-7977-4E4E-B511-089CF568FFDF">
-			  <File Id="BAT" Name="OpenSSL_Start.bat" Source="C:\build\OpenSSL_FIPS\OpenSSL_Start.bat" />
-		  </Component>
-
-		  <Component Id="MainExecutable" Guid="B26AA781-3B21-4A69-925E-BA716F47AD53">
-			  <File Id="EXE" Name="openssl.exe" Source="C:\build\OpenSSL_FIPS\openssl.exe" />
+			  <File Id="BAT" Name="OpenSSL_Start.bat" Source="$(var.StagingDir)\OpenSSL_Start.bat" />
 		  </Component>
 		  
-		  <!-- Documentation and Verification Files -->
+		  <!-- Build and Verification Documentation -->
 		  <Component Id="BuildInfo" Guid="31D35B65-4CDA-44CC-B211-700ABBCB636B">
-			  <File Id="BuildInfoTxt" Name="BUILD_INFO.txt" Source="C:\build\OpenSSL_FIPS\BUILD_INFO.txt" />
+			  <File Id="BuildInfoTxt" Name="BUILD_INFO.txt" Source="$(var.StagingDir)\BUILD_INFO.txt" />
 		  </Component>
-
+		  
 		  <Component Id="SourceVerification" Guid="6410FBA1-59D4-475E-8F84-9E3ABF03318B">
-			  <File Id="SourceVerificationTxt" Name="source-verification.txt" Source="C:\build\OpenSSL_FIPS\source-verification.txt" />
+			  <File Id="SourceVerificationTxt" Name="source-verification.txt" Source="$(var.StagingDir)\source-verification.txt" />
 		  </Component>
-
+		  
 		  <Component Id="CryptoAttestation" Guid="5D5AE0D2-C6F5-43EA-92BA-52BD96F8D3D8">
-			  <File Id="CryptoAttestationTxt" Name="CRYPTOGRAPHIC_ATTESTATION.txt" Source="C:\build\OpenSSL_FIPS\CRYPTOGRAPHIC_ATTESTATION.txt" />
+			  <File Id="CryptoAttestationTxt" Name="CRYPTOGRAPHIC_ATTESTATION.txt" Source="$(var.StagingDir)\CRYPTOGRAPHIC_ATTESTATION.txt" />
 		  </Component>
 
 		  <Component Id="BuildProvenance" Guid="3F8D1C05-F531-4D7D-9EFA-247F62C14378">
-			  <File Id="BuildProvenanceTxt" Name="BUILD_PROVENANCE.txt" Source="C:\build\OpenSSL_FIPS\BUILD_PROVENANCE.txt" />
+			  <File Id="BuildProvenanceTxt" Name="BUILD_PROVENANCE.txt" Source="$(var.StagingDir)\BUILD_PROVENANCE.txt" />
 		  </Component>
 
 		  <Component Id="BuildProvenanceJson" Guid="A06738E5-CB07-453D-8F29-16C2CB1C898D">
-			  <File Id="BuildProvenanceJson" Name="BUILD_PROVENANCE.json" Source="C:\build\OpenSSL_FIPS\BUILD_PROVENANCE.json" />
+			  <File Id="BuildProvenanceJson" Name="BUILD_PROVENANCE.json" Source="$(var.StagingDir)\BUILD_PROVENANCE.json" />
+		  </Component>
+		  
+		  <!-- License and Legal Files -->
+		  <Component Id="License" Guid="F1234567-89AB-CDEF-0123-456789ABCDEF">
+			  <File Id="LicenseTxt" Name="LICENSE.txt" Source="$(var.StagingDir)\LICENSE.txt" />
+		  </Component>
+			  
+		  <Component Id="OpenSSLLicense" Guid="F1234567-89AB-CDEF-0123-456789ABCDEF">
+			  <File Id="OpenSSLLicenseTxt" Name="OPENSSL_LICENSE.txt" Source="$(var.StagingDir)\OPENSSL_LICENSE.txt" />
+		  </Component>
+		  
+		  <Component Id="ThirdPartyNotices" Guid="F2345678-9ABC-DEF0-1234-56789ABCDEF0">
+			  <File Id="ThirdPartyNoticesTxt" Name="THIRD_PARTY_NOTICES.txt" Source="$(var.StagingDir)\THIRD_PARTY_NOTICES.txt" />
 		  </Component>
 	  </ComponentGroup>
 
 	  <ComponentGroup Id="ProductModules" Directory="OSSLModulesFolder">
 		  <Component Id="FipsModule" Guid="13E07CC8-19BA-4401-9C3A-2950A61DBE29">
-			  <File Id="FipsDLL" Name="fips.dll" Source="C:\build\OpenSSL_FIPS\lib\ossl-modules\fips.dll" />
+			  <File Id="FipsDLL" Name="fips.dll" Source="$(var.StagingDir)\lib\ossl-modules\fips.dll" />
 		  </Component>
 	  </ComponentGroup>
 
