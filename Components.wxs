@@ -61,7 +61,7 @@
 		  </Component>
 		  
 		  <!-- License and Legal Files -->
-		  <Component Id="License" Guid="F1234567-89AB-CDEF-0123-456789ABCDEF">
+		  <Component Id="License" Guid="E48C3A69-2596-4A95-A60B-B27425E8F8E8">
 			  <File Id="LicenseTxt" Name="LICENSE.txt" Source="$(var.StagingDir)\LICENSE.txt" />
 		  </Component>
 			  
