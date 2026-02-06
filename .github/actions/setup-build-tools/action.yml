@@ -22,13 +22,11 @@ runs:
   steps:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
-      shell: bash
 
     - name: Setup Developer Command Prompt
       uses: ilammy/msvc-dev-cmd@v1
       with:
         arch: x64
-      shell: bash
 
     - name: Install WiX Toolset
       id: wix
