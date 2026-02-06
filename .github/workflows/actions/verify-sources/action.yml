@@ -1,0 +1,169 @@
+# Copyright (c) 2026 Matthew Kempe (@fsbruva)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Repository: https://github.com/fsbruva/Openssl_FIPS
+
+name: 'Verify OpenSSL Sources'
+description: 'Download and cryptographically verify OpenSSL and FIPS module source tarballs'
+
+inputs:
+  openssl-version:
+    description: 'OpenSSL version to download'
+    required: true
+  fips-version:
+    description: 'FIPS module version to download'
+    required: true
+  openssl-sha256:
+    description: 'Expected SHA256 hash for OpenSSL tarball'
+    required: true
+  fips-sha256:
+    description: 'Expected SHA256 hash for FIPS module tarball'
+    required: true
+  build-dir:
+    description: 'Build directory path'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Create verification manifest header
+      run: |
+        $manifestPath = "${{ inputs.build-dir }}\verification\source-verification.txt"
+        
+        $header = @"
+        ========================================================================
+        OPENSSL FIPS BUILD - SOURCE CODE VERIFICATION
+        ========================================================================
+        
+        This document provides cryptographic verification that all OpenSSL source
+        code was downloaded from official OpenSSL.org sources and has not been
+        modified or tampered with.
+        
+        Verification Date: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
+        Verification Method: SHA256 Cryptographic Hash
+        
+        "@
+        $header | Out-File -FilePath $manifestPath -Encoding utf8
+        Write-Host "Created verification manifest" -ForegroundColor Green
+      shell: powershell
+
+    - name: Download and verify FIPS module source
+      run: |
+        $manifestPath = "${{ inputs.build-dir }}\verification\source-verification.txt"
+        
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "DOWNLOADING FIPS MODULE SOURCE" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        
+        $fipsUrl = "https://www.openssl.org/source/openssl-${{ inputs.fips-version }}.tar.gz"
+        $fipsFile = "${{ inputs.build-dir }}\openssl-fips.tar.gz"
+        
+        Write-Host "Downloading: $fipsUrl"
+        Invoke-WebRequest -Uri $fipsUrl -OutFile $fipsFile -UseBasicParsing
+        Write-Host "Download complete" -ForegroundColor Green
+        
+        Write-Host "`nVerifying cryptographic hash..."
+        $actualHash = (Get-FileHash -Path $fipsFile -Algorithm SHA256).Hash.ToLower()
+        $expectedHash = "${{ inputs.fips-sha256 }}"
+        
+        $verificationStatus = if ($actualHash -eq $expectedHash) { "PASSED" } else { "FAILED" }
+        
+        Write-Host "Expected: $expectedHash"
+        Write-Host "Actual:   $actualHash"
+        Write-Host "Verification: $verificationStatus" -ForegroundColor $(if ($verificationStatus -eq "PASSED") { "Green" } else { "Red" })
+        
+        if ($actualHash -ne $expectedHash) {
+          Write-Host "`nCRITICAL ERROR: Hash verification failed!" -ForegroundColor Red
+          exit 1
+        }
+        
+        $fipsVerification = @"
+        
+        ========================================================================
+        FIPS MODULE SOURCE VERIFICATION
+        ========================================================================
+        
+        File: openssl-${{ inputs.fips-version }}.tar.gz
+        Source: https://www.openssl.org/source/
+        Download URL: $fipsUrl
+        
+        SHA256 Hash Verification:
+        Expected: $expectedHash
+        Actual:   $actualHash
+        Verification: $verificationStatus
+        
+        Status: Source code cryptographically verified
+        
+        "@
+        $fipsVerification | Out-File -FilePath $manifestPath -Append -Encoding utf8
+        Write-Host "`nFIPS module source verified successfully" -ForegroundColor Green
+      shell: powershell
+
+    - name: Download and verify OpenSSL source
+      run: |
+        $manifestPath = "${{ inputs.build-dir }}\verification\source-verification.txt"
+        
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "DOWNLOADING OPENSSL SOURCE" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        
+        $opensslUrl = "https://www.openssl.org/source/openssl-${{ inputs.openssl-version }}.tar.gz"
+        $opensslFile = "${{ inputs.build-dir }}\openssl.tar.gz"
+        
+        Write-Host "Downloading: $opensslUrl"
+        Invoke-WebRequest -Uri $opensslUrl -OutFile $opensslFile -UseBasicParsing
+        Write-Host "Download complete" -ForegroundColor Green
+        
+        Write-Host "`nVerifying cryptographic hash..."
+        $actualHash = (Get-FileHash -Path $opensslFile -Algorithm SHA256).Hash.ToLower()
+        $expectedHash = "${{ inputs.openssl-sha256 }}"
+        
+        $verificationStatus = if ($actualHash -eq $expectedHash) { "PASSED" } else { "FAILED" }
+        
+        Write-Host "Expected: $expectedHash"
+        Write-Host "Actual:   $actualHash"
+        Write-Host "Verification: $verificationStatus" -ForegroundColor $(if ($verificationStatus -eq "PASSED") { "Green" } else { "Red" })
+        
+        if ($actualHash -ne $expectedHash) {
+          Write-Host "`nCRITICAL ERROR: Hash verification failed!" -ForegroundColor Red
+          exit 1
+        }
+        
+        $opensslVerification = @"
+        
+        ========================================================================
+        OPENSSL SOURCE VERIFICATION
+        ========================================================================
+        
+        File: openssl-${{ inputs.openssl-version }}.tar.gz
+        Source: https://www.openssl.org/source/
+        Download URL: $opensslUrl
+        
+        SHA256 Hash Verification:
+        Expected: $expectedHash
+        Actual:   $actualHash
+        Verification: $verificationStatus
+        
+        Status: Source code cryptographically verified
+        
+        "@
+        $opensslVerification | Out-File -FilePath $manifestPath -Append -Encoding utf8
+        Write-Host "`nOpenSSL source verified successfully" -ForegroundColor Green
+      shell: powershell
+
+    - name: Extract verified sources
+      run: |
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "EXTRACTING VERIFIED SOURCES" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        
+        Write-Host "`nExtracting FIPS module..."
+        tar -xzf "${{ inputs.build-dir }}\openssl-fips.tar.gz" -C "${{ inputs.build-dir }}"
+        Write-Host "FIPS module extracted" -ForegroundColor Green
+        
+        Write-Host "`nExtracting OpenSSL..."
+        tar -xzf "${{ inputs.build-dir }}\openssl.tar.gz" -C "${{ inputs.build-dir }}"
+        Write-Host "OpenSSL extracted" -ForegroundColor Green
+        
+        Write-Host "`nSources ready for compilation" -ForegroundColor Green
+      shell: powershell

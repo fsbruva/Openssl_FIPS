@@ -1,0 +1,72 @@
+# Copyright (c) 2026 Matthew Kempe (@fsbruva)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Repository: https://github.com/fsbruva/Openssl_FIPS
+
+name: 'Setup Build Tools'
+description: 'Install and configure all required build tools for OpenSSL FIPS compilation'
+
+outputs:
+  wix-version:
+    description: 'Installed WiX Toolset version'
+    value: ${{ steps.wix.outputs.version }}
+  dotnet-version:
+    description: 'Installed .NET SDK version'
+    value: ${{ steps.dotnet.outputs.version }}
+  vs-version:
+    description: 'Visual Studio version'
+    value: ${{ steps.vs.outputs.version }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+      shell: bash
+
+    - name: Setup Developer Command Prompt
+      uses: ilammy/msvc-dev-cmd@v1
+      with:
+        arch: x64
+      shell: bash
+
+    - name: Install WiX Toolset
+      id: wix
+      run: |
+        Write-Host "Installing WiX Toolset..." -ForegroundColor Cyan
+        dotnet tool install --global wix
+        
+        $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
+        
+        $wixVersion = wix --version
+        echo "version=$wixVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "WiX $wixVersion installed successfully" -ForegroundColor Green
+      shell: powershell
+
+    - name: Verify build tools
+      id: verify
+      run: |
+        $env:Path = [System.Environment]::GetEnvironmentVariable("Path","Machine") + ";" + [System.Environment]::GetEnvironmentVariable("Path","User")
+        
+        Write-Host "Build Tools Verification:" -ForegroundColor Cyan
+        Write-Host "=========================" -ForegroundColor Cyan
+        
+        Write-Host "`nNASM:"
+        where.exe nasm
+        nasm -version
+        
+        Write-Host "`nPerl:"
+        where.exe perl
+        perl --version | Select-Object -First 2
+        
+        $dotnetVersion = dotnet --version
+        echo "version=$dotnetVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "`n.NET SDK: $dotnetVersion"
+      
+        Write-Host "`nWiX: ${{ steps.wix.outputs.version }}"
+   
+        $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        $vsVersion = & $vswhere -latest -property displayName
+        echo "version=$vsVersion" >> $env:GITHUB_OUTPUT
+        Write-Host "`nVisual Studio: $vsVersion"
+      shell: powershell

@@ -1,0 +1,131 @@
+# Copyright (c) 2026 Matthew Kempe (@fsbruva)
+# SPDX-License-Identifier: Apache-2.0
+#
+# Repository: https://github.com/fsbruva/Openssl_FIPS
+
+name: 'Build OpenSSL with FIPS'
+description: 'Compile FIPS module and OpenSSL from verified sources'
+
+inputs:
+  build-dir:
+    description: 'Build directory path'
+    required: true
+  openssl-version:
+    description: 'OpenSSL version being built'
+    required: true
+  fips-version:
+    description: 'FIPS module version being built'
+    required: true
+  install-prefix:
+    description: 'Installation prefix path'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Build FIPS Module
+      run: |
+        cd /d "${{ inputs.build-dir }}\openssl-${{ inputs.fips-version }}"
+        if %ERRORLEVEL% NEQ 0 (
+          echo ERROR: Failed to change to FIPS source directory
+          exit /b 1
+        )        
+        
+        echo ========================================
+        echo BUILDING FIPS MODULE
+        echo ========================================
+        echo Current directory: %CD%
+        echo Install prefix: ${{ inputs.install-prefix }}
+        echo.
+        
+        REM Configure with final installation path
+        perl Configure VC-WIN64A enable-fips --release no-shared no-legacy --prefix="${{ inputs.install-prefix }}" --openssldir="${{ inputs.install-prefix }}" -DPEDANTIC
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        nmake build_sw
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        nmake test
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        nmake install_fips
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        echo FIPS module built successfully
+      shell: cmd
+
+    - name: Build OpenSSL with FIPS
+      run: |
+        cd /d "${{ inputs.build-dir }}\openssl-${{ inputs.openssl-version }}"
+        if %ERRORLEVEL% NEQ 0 (
+          echo ERROR: Failed to change to OpenSSL source directory
+          exit /b 1
+        )
+        
+        echo ========================================
+        echo BUILDING OPENSSL WITH FIPS
+        echo ========================================
+        echo Install prefix: ${{ inputs.install-prefix }}
+        echo Current directory: %CD%
+        echo.
+        
+        REM Configure with final installation path
+        perl Configure VC-WIN64A enable-fips --release no-shared no-legacy --prefix="${{ inputs.install-prefix }}" --openssldir="${{ inputs.install-prefix }}" -DPEDANTIC
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        nmake build_sw
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        REM Copy FIPS module from installation (already built)
+        copy "${{ inputs.install-prefix }}\lib\ossl-modules\fips.dll" providers\
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+
+        copy "${{ inputs.install-prefix }}\fipsmodule.cnf" providers\
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+
+        nmake test
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        nmake install_runtime
+        if %ERRORLEVEL% NEQ 0 exit /b %ERRORLEVEL%
+        
+        echo OpenSSL built successfully
+      shell: cmd
+
+    - name: Generate FIPS module HMAC
+      run: |
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host "GENERATING FIPS MODULE HMAC" -ForegroundColor Cyan
+        Write-Host "========================================" -ForegroundColor Cyan
+        
+        # Move openssl.exe from bin to root
+        Move-Item "${{ inputs.install-prefix }}\bin\openssl.exe" "${{ inputs.install-prefix }}\openssl.exe" -Force
+        Write-Host "Moved openssl.exe to root directory" -ForegroundColor Green
+        
+        # Copy openssl.cnf from repository
+        Copy-Item "openssl.cnf" "${{ inputs.install-prefix }}\" -Force
+        Write-Host "Installed openssl.cnf" -ForegroundColor Green
+
+        # Change to OpenSSL directory
+        Push-Location "${{ inputs.install-prefix }}"
+
+        # Generate fipsmodule.cnf with HMAC
+        Write-Host "`nGenerating FIPS module configuration with HMAC..." -ForegroundColor Cyan
+        & ".\openssl.exe" fipsinstall `
+          -out "fipsmodule.cnf" `
+          -module "lib\ossl-modules\fips.dll" `
+          -self_test_onload
+
+        Pop-Location
+
+        if ($LASTEXITCODE -ne 0) {
+          Write-Host "FIPS module configuration generation failed!" -ForegroundColor Red
+          exit 1
+        }
+
+        Write-Host "FIPS module HMAC generated successfully" -ForegroundColor Green
+
+        # Verify the HMAC was added
+        Write-Host "`nVerifying fipsmodule.cnf contains HMAC:" -ForegroundColor Cyan
+        Get-Content "${{ inputs.install-prefix }}\fipsmodule.cnf" | Select-String "install-mac"
+      shell: powershell
