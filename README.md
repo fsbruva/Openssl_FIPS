@@ -1,6 +1,6 @@
 # OpenSSL FIPS Installer for Windows
 
-[![Build Status](https://github.com/fsbruva/Openssl_FIPS/actions/workflows/build-openssl-fips-wix6.yml/badge.svg)](https://github.com/fsbruva/Openssl_FIPS/actions)
+[![Build Status](https://github.com/fsbruva/openssl-fips-windows-installer/actions/workflows/build-openssl-fips-wix6.yml/badge.svg)](https://github.com/fsbruva/openssl-fips-windows-installer/actions)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.5.5-green.svg)](https://www.openssl.org/)
 [![FIPS](https://img.shields.io/badge/FIPS-140--3-red.svg)](https://csrc.nist.gov/pubs/fips/140-3/final)
@@ -52,12 +52,12 @@ C:\Program Files\OpenSSL\
 1. **Download the latest release:**
    ```powershell
    # Via GitHub CLI
-   gh release download --repo fsbruva/Openssl_FIPS --pattern "*.msi"
+   gh release download --repo fsbruva/openssl-fips-windows-installer --pattern "*.msi"
    ```
 
 2. **Verify the installer** (recommended):
    ```powershell
-   gh attestation verify OpenSSL-FIPS-3.5.5.msi --repo fsbruva/Openssl_FIPS
+   gh attestation verify OpenSSL-FIPS-3.5.5.msi --repo fsbruva/openssl-fips-windows-installer
    ```
 
 3. **Install:**
@@ -118,8 +118,8 @@ All source code is downloaded from official OpenSSL.org and verified against pub
 
 1. **Clone the repository:**
    ```powershell
-   git clone https://github.com/fsbruva/Openssl_FIPS.git
-   cd Openssl_FIPS
+   git clone https://github.com/fsbruva/openssl-fips-windows-installer.git
+   cd openssl-fips-windows-installer
    ```
 
 2. **Trigger GitHub Actions build:**
@@ -268,7 +268,7 @@ This product includes cryptographic software written by Eric Young (eay@cryptsof
 **Matthew Kempe** ([@fsbruva](https://github.com/fsbruva))
 
 - GitHub: https://github.com/fsbruva
-- Repository: https://github.com/fsbruva/Openssl_FIPS
+- Repository: https://github.com/fsbruva/openss-fips-windows-installer
 
 ## 🌟 Acknowledgments
 
@@ -295,7 +295,7 @@ This product includes cryptographic software written by Eric Young (eay@cryptsof
 
 For support and questions:
 
-- 🐛 Open an [issue](https://github.com/fsbruva/Openssl_FIPS/issues)
+- 🐛 Open an [issue](https://github.com/fsbruva/openssl-fips-windows-installer/issues)
 
 ---
 

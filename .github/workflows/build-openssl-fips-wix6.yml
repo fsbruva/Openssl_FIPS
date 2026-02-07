@@ -1,7 +1,7 @@
 # Copyright (c) 2026 Matthew Kempe (@fsbruva)
 # SPDX-License-Identifier: Apache-2.0
 #
-# Repository: https://github.com/fsbruva/Openssl_FIPS
+# Repository: https://github.com/fsbruva/openssl-fips-windows-installer
 
 name: Build OpenSSL FIPS (Windows x64)
 
@@ -34,7 +34,7 @@ env:
 
   # Directory Configuration
   BUILD_DIR: C:\build\src
-  STAGING_DIR: C:\build\OpenSSL_FIPS
+  STAGING_DIR: C:\build\staging
   FINAL_PREFIX: 'C:\Program Files\OpenSSL'
   FINAL_OPENSSLDIR: 'C:\Program Files\OpenSSL'
 
@@ -499,7 +499,7 @@ jobs:
         dotnet tool install --global wix
         $env:PATH += ";$env:USERPROFILE\.dotnet\tools"
         
-        dotnet build Openssl_FIPS.wixproj -c Release -p:Platform=x64
+        dotnet build openssl-fips.wixproj -c Release -p:Platform=x64
         
         if ($LASTEXITCODE -ne 0) {
           Write-Host "ERROR - WiX build failed!" -ForegroundColor Red

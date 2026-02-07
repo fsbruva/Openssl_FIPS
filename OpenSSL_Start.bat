@@ -1,7 +1,7 @@
 @echo off
 REM Copyright (c) 2026 Matthew Kempe (@fsbruva)
 REM SPDX-License-Identifier: Apache-2.0
-REM Repository: https://github.com/fsbruva/Openssl_FIPS
+REM Repository: https://github.com/fsbruva/openssl-fips-windows-installer
 echo:
 echo *******************************************************************
 echo ****                                                           ****
