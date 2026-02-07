@@ -56,3 +56,4 @@ dkms.conf
 /.vs/Openssl_FIPS.slnx
 /bin/x64
 /obj
+/.vs/openssl-fips.slnx/v18
