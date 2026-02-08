@@ -12,10 +12,10 @@ outputs:
     value: ${{ steps.wix.outputs.version }}
   dotnet-version:
     description: 'Installed .NET SDK version'
-    value: ${{ steps.dotnet.outputs.version }}
+    value: ${{ steps.verify.outputs.dotnet-version }}
   vs-version:
     description: 'Visual Studio version'
-    value: ${{ steps.vs.outputs.version }}
+    value: ${{ steps.verify.outputs.vs-version }}
 
 runs:
   using: 'composite'
@@ -58,13 +58,13 @@ runs:
         perl --version | Select-Object -First 2
         
         $dotnetVersion = dotnet --version
-        echo "version=$dotnetVersion" >> $env:GITHUB_OUTPUT
+        echo "dotnet-version=$dotnetVersion" >> $env:GITHUB_OUTPUT
         Write-Host "`n.NET SDK: $dotnetVersion"
       
         Write-Host "`nWiX: ${{ steps.wix.outputs.version }}"
    
         $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
         $vsVersion = & $vswhere -latest -property displayName
-        echo "version=$vsVersion" >> $env:GITHUB_OUTPUT
+        echo "vs-version=$vsVersion" >> $env:GITHUB_OUTPUT
         Write-Host "`nVisual Studio: $vsVersion"
       shell: powershell
