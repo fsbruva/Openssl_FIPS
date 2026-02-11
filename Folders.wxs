@@ -11,7 +11,9 @@
   <Fragment>
     <StandardDirectory Id="ProgramFiles64Folder">
       <Directory Id="INSTALLFOLDER" Name="OpenSSL" >
-		<Directory Id="OpenSSLLibFolder" Name="lib" >
+		<Directory Id="DocsFolder" Name="docs">
+		</Directory>
+		<Directory Id="LibFolder" Name="lib" >
 		  <Directory Id="OSSLModulesFolder" Name="ossl-modules" />
 		</Directory>
 	  </Directory>

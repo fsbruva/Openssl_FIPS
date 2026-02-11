@@ -1,7 +1,7 @@
 # OpenSSL FIPS Installer for Windows
 
 [![Build Status](https://github.com/fsbruva/openssl-fips-windows-installer/actions/workflows/build-openssl-fips-wix6.yml/badge.svg)](https://github.com/fsbruva/openssl-fips-windows-installer/actions)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE.txt)
 [![OpenSSL](https://img.shields.io/badge/OpenSSL-3.5.5-green.svg)](https://www.openssl.org/)
 [![FIPS](https://img.shields.io/badge/FIPS-140--3-red.svg)](https://csrc.nist.gov/pubs/fips/140-3/final)
 
@@ -34,12 +34,17 @@ C:\Program Files\OpenSSL\
 │   └── ossl-modules\
 │       └── fips.dll                 # FIPS provider module
 │
-├── source-verification.txt          # Techincal source code hash verification log
-├── CRYPTOGRAPHIC_ATTESTATION.txt    # FIPS 140-3 compliance attestation
-├── BUILD_PROVENANCE.txt             # SLSA build provenance (human-readable)
-├── BUILD_PROVENANCE.json            # SLSA build provenance (machine-readable)
-├── OPENSSL_LICENSE.txt              # OpenSSL Apache 2.0 license
-└── THIRD_PARTY_NOTICES.txt          # Third-party software attributions
+├── LICENSE.txt                      # Installer license
+├── THIRD_PARTY_NOTICES.txt          # Third-party software attributions
+│
+└── docs\
+    ├── source-verification.txt          # Technical source code hash verification log
+    ├── BUILD_PROVENANCE.txt             # SLSA build provenance (human-readable)
+    ├── BUILD_PROVENANCE.json            # SLSA build provenance (machine-readable)
+    ├── CRYPTOGRAPHIC_ATTESTATION.txt    # FIPS 140-3 compliance attestation
+    ├── OPENSSL_LICENSE.txt              # OpenSSL Apache 2.0 license
+    └── README.txt                       # Documentation README
+
 ```
 
 ### Start Menu Shortcuts
@@ -57,10 +62,16 @@ C:\Program Files\OpenSSL\
    gh release download --repo fsbruva/openssl-fips-windows-installer --pattern "*.msi"
    ```
 
+## Security Notice
+
+Windows may show a SmartScreen warning for new software. 
+
 2. **Verify the installer** (recommended):
    ```powershell
    gh attestation verify OpenSSL-FIPS-3.X.Y.msi --repo fsbruva/openssl-fips-windows-installer
    ```
+
+    The installer is cryptographically signed via Sigstore.
 
 3. **Install:**
    ```powershell
@@ -83,8 +94,8 @@ openssl.exe fipsinstall -in fipsmodule.cnf -module lib\ossl-modules\fips.dll -ve
 openssl.exe list -providers
 
 # View build provenance
-type "C:\Program Files\OpenSSL\CRYPTOGRAPHIC_ATTESTATION.txt"
-type "C:\Program Files\OpenSSL\BUILD_PROVENANCE.txt"
+type "C:\Program Files\OpenSSL\docs\CRYPTOGRAPHIC_ATTESTATION.txt"
+type "C:\Program Files\OpenSSL\docs\BUILD_PROVENANCE.txt"
 ```
 
 ## 🔐 Security & Compliance
@@ -162,13 +173,13 @@ graph TD
 
 ### Included Documentation
 
+- **LICENSE.txt** - Installer Apache 2.0 license
+- **THIRD_PARTY_NOTICES.txt** - Third-party software attributions
 - **source-verification.txt** - Complete source code verification log
-- **CRYPTOGRAPHIC_ATTESTATION.txt** - FIPS 140-3 compliance attestation
 - **BUILD_PROVENANCE.txt** - SLSA build provenance (human-readable)
 - **BUILD_PROVENANCE.json** - SLSA build provenance (machine-readable)
-- **LICENSE.txt** - Installer Apache 2.0 license
+- **CRYPTOGRAPHIC_ATTESTATION.txt** - FIPS 140-3 compliance attestation
 - **OPENSSL_LICENSE.txt** - OpenSSL Apache 2.0 license
-- **THIRD_PARTY_NOTICES.txt** - Third-party software attributions
 
 ### Online Resources
 
@@ -251,7 +262,7 @@ Copyright (c) 2026 Matthew Kempe ([@fsbruva](https://github.com/fsbruva))
 
 This installer package (WiX source code, build scripts, and workflows) is licensed under the Apache License, Version 2.0.
 
-See [LICENSE](LICENSE) for details.
+See [LICENSE.txt](LICENSE.txt) for details.
 
 ### OpenSSL
 

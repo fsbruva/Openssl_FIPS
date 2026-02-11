@@ -38,36 +38,44 @@
 		  <Component Id="ShellWrapper" Guid="EAD69737-7977-4E4E-B511-089CF568FFDF">
 			  <File Id="BAT" Name="OpenSSL_Start.bat" Source="$(var.StagingDir)\OpenSSL_Start.bat" />
 		  </Component>
-		  
-		  <!-- Build and Verification Documentation -->
-		  <Component Id="SourceVerification" Guid="6410FBA1-59D4-475E-8F84-9E3ABF03318B">
-			  <File Id="SourceVerificationTxt" Name="source-verification.txt" Source="$(var.StagingDir)\source-verification.txt" />
-		  </Component>
-		  
-		  <Component Id="CryptoAttestation" Guid="5D5AE0D2-C6F5-43EA-92BA-52BD96F8D3D8">
-			  <File Id="CryptoAttestationTxt" Name="CRYPTOGRAPHIC_ATTESTATION.txt" Source="$(var.StagingDir)\CRYPTOGRAPHIC_ATTESTATION.txt" />
-		  </Component>
-
-		  <Component Id="BuildProvenance" Guid="3F8D1C05-F531-4D7D-9EFA-247F62C14378">
-			  <File Id="BuildProvenanceTxt" Name="BUILD_PROVENANCE.txt" Source="$(var.StagingDir)\BUILD_PROVENANCE.txt" />
-		  </Component>
-
-		  <Component Id="BuildProvenanceJson" Guid="A06738E5-CB07-453D-8F29-16C2CB1C898D">
-			  <File Id="BuildProvenanceJson" Name="BUILD_PROVENANCE.json" Source="$(var.StagingDir)\BUILD_PROVENANCE.json" />
-		  </Component>
-		  
-		  <!-- License and Legal Files -->
+	  
 		  <Component Id="License" Guid="E48C3A69-2596-4A95-A60B-B27425E8F8E8">
 			  <File Id="LicenseTxt" Name="LICENSE.txt" Source="$(var.StagingDir)\LICENSE.txt" />
 		  </Component>
-			  
-		  <Component Id="OpenSSLLicense" Guid="F1234567-89AB-CDEF-0123-456789ABCDEF">
-			  <File Id="OpenSSLLicenseTxt" Name="OPENSSL_LICENSE.txt" Source="$(var.StagingDir)\OPENSSL_LICENSE.txt" />
-		  </Component>
-		  
+
 		  <Component Id="ThirdPartyNotices" Guid="F2345678-9ABC-DEF0-1234-56789ABCDEF0">
 			  <File Id="ThirdPartyNoticesTxt" Name="THIRD_PARTY_NOTICES.txt" Source="$(var.StagingDir)\THIRD_PARTY_NOTICES.txt" />
 		  </Component>
+
+	  </ComponentGroup>
+
+	  <!-- Build and Verification Documentation -->
+	  <ComponentGroup Id="DocsFolder" Directory="docs">
+	
+		  <Component Id="SourceVerification" Guid="6410FBA1-59D4-475E-8F84-9E3ABF03318B">
+			  <File Id="SourceVerificationTxt" Name="source-verification.txt" Source="$(var.StagingDir)\docs\source-verification.txt" />
+		  </Component>
+
+		  <Component Id="BuildProvenance" Guid="3F8D1C05-F531-4D7D-9EFA-247F62C14378">
+			  <File Id="BuildProvenanceTxt" Name="BUILD_PROVENANCE.txt" Source="$(var.StagingDir)\docs\BUILD_PROVENANCE.txt" />
+		  </Component>
+
+		  <Component Id="BuildProvenanceJson" Guid="A06738E5-CB07-453D-8F29-16C2CB1C898D">
+			  <File Id="BuildProvenanceJson" Name="BUILD_PROVENANCE.json" Source="$(var.StagingDir)\docs\BUILD_PROVENANCE.json" />
+		  </Component>
+		  
+		  <Component Id="CryptoAttestation" Guid="5D5AE0D2-C6F5-43EA-92BA-52BD96F8D3D8">
+			  <File Id="CryptoAttestationTxt" Name="CRYPTOGRAPHIC_ATTESTATION.txt" Source="$(var.StagingDir)\docs\CRYPTOGRAPHIC_ATTESTATION.txt" />
+		  </Component>
+		  
+		  <Component Id="OpenSSLLicense" Guid="F1234567-89AB-CDEF-0123-456789ABCDEF">
+			  <File Id="OpenSSLLicenseTxt" Name="OPENSSL_LICENSE.txt" Source="$(var.StagingDir)\docs\OPENSSL_LICENSE.txt" />
+		  </Component>
+
+		  <Component Id="DocReadme" Guid="5D5AE0D2-C6F5-43EA-92BA-52BD96F8D3D8">
+			  <File Id="DocReadmeTxt" Name="README.txt" Source="$(var.StagingDir)\docs\README.txt" />
+		  </Component>
+		  
 	  </ComponentGroup>
 
 	  <ComponentGroup Id="ProductModules" Directory="OSSLModulesFolder">

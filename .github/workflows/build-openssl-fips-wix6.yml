@@ -68,6 +68,7 @@ jobs:
         New-Item -ItemType Directory -Force -Path "$env:BUILD_DIR"
         New-Item -ItemType Directory -Force -Path "$env:BUILD_DIR\verification"
         New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR"
+        New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR\docs\"
         New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR\lib\ossl-modules"
         New-Item -ItemType Directory -Force -Path "$env:FINAL_OPENSSLDIR"
         New-Item -ItemType Directory -Force -Path "$env:FINAL_OPENSSLDIR\lib\ossl-modules"
@@ -171,7 +172,7 @@ jobs:
         Copy-Item "OpenSSL_Start.bat" -Destination "$env:STAGING_DIR\" -Force
         Write-Host "Added OpenSSL_Start.bat" -ForegroundColor Green
         
-        Copy-Item "$env:BUILD_DIR\verification\source-verification.txt" -Destination "$env:STAGING_DIR\" -Force
+        Copy-Item "$env:BUILD_DIR\verification\source-verification.txt" -Destination "$env:STAGING_DIR\docs\" -Force
         Write-Host "Added source-verification.txt" -ForegroundColor Green
         
       shell: powershell
@@ -194,7 +195,7 @@ jobs:
         
         For complete license text: https://www.apache.org/licenses/LICENSE-2.0.txt
         For OpenSSL project: https://www.openssl.org/
-        "@ | Out-File -FilePath "$env:STAGING_DIR\OPENSSL_LICENSE.txt" -Encoding utf8
+        "@ | Out-File -FilePath "$env:STAGING_DIR\docs\OPENSSL_LICENSE.txt" -Encoding utf8
         
         # Create THIRD_PARTY_NOTICES.txt
         @"
@@ -218,8 +219,12 @@ jobs:
         "@ | Out-File -FilePath "$env:STAGING_DIR\THIRD_PARTY_NOTICES.txt" -Encoding utf8
         
         # Copy installer License file
-        Copy-Item "LICENSE" -Destination "$env:STAGING_DIR\LICENSE.txt" -Force
-        Write-Host "Copied LICENSE from repository" -ForegroundColor Green
+        Copy-Item "LICENSE.txt" -Destination "$env:STAGING_DIR\LICENSE.txt" -Force
+        Write-Host "Copied intaller LICENSE.txt from repository" -ForegroundColor Green
+
+        # Copy docs README file
+        Copy-Item "docs\README.txt" -Destination "$env:STAGING_DIR\docs\README.txt" -Force
+        Write-Host "Copied documentation README.txt from repository" -ForegroundColor Green
         
         Write-Host "License files created" -ForegroundColor Green
       shell: powershell
@@ -267,7 +272,7 @@ jobs:
         verifications and binary artifact hashes, see:
         - source-verification.txt (source code verification)
         - BUILD_PROVENANCE.txt (build process details)
-        "@ | Out-File -FilePath "$env:STAGING_DIR\CRYPTOGRAPHIC_ATTESTATION.txt" -Encoding utf8
+        "@ | Out-File -FilePath "$env:STAGING_DIR\docs\CRYPTOGRAPHIC_ATTESTATION.txt" -Encoding utf8
         
         Write-Host "Cryptographic attestation created" -ForegroundColor Green
       shell: powershell
@@ -386,7 +391,7 @@ jobs:
 
         ========================================================================
         "@
-        $provenance | Out-File -FilePath "$env:STAGING_DIR\BUILD_PROVENANCE.txt" -Encoding utf8
+        $provenance | Out-File -FilePath "$env:STAGING_DIR\docs\BUILD_PROVENANCE.txt" -Encoding utf8
         Write-Host "Created BUILD_PROVENANCE.txt" -ForegroundColor Green
         
         # Create BUILD_PROVENANCE.json
@@ -433,7 +438,7 @@ jobs:
           }
         }
         
-        $jsonProvenance | ConvertTo-Json -Depth 10 | Out-File -FilePath "$env:STAGING_DIR\BUILD_PROVENANCE.json" -Encoding utf8
+        $jsonProvenance | ConvertTo-Json -Depth 10 | Out-File -FilePath "$env:STAGING_DIR\docs\BUILD_PROVENANCE.json" -Encoding utf8
         Write-Host "Created BUILD_PROVENANCE.json" -ForegroundColor Green
       shell: powershell
 
@@ -452,8 +457,8 @@ jobs:
       with:
         name: slsa-build-provenance
         path: |
-          ${{ env.STAGING_DIR }}\BUILD_PROVENANCE.txt
-          ${{ env.STAGING_DIR }}\BUILD_PROVENANCE.json
+          ${{ env.STAGING_DIR }}\docs\BUILD_PROVENANCE.txt
+          ${{ env.STAGING_DIR }}\docs\BUILD_PROVENANCE.json
         retention-days: 365  # Keep provenance for 1 year
 
   # ===========================================================================
