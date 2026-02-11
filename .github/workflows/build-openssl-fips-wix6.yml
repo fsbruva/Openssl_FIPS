@@ -38,11 +38,6 @@ env:
   FINAL_PREFIX: 'C:\Program Files\OpenSSL'
   FINAL_OPENSSLDIR: 'C:\Program Files\OpenSSL'
 
-  # Tool Versions (set by composite actions)
-  WIX_VERSION: ""
-  DOTNET_VERSION: ""
-  VS_VERSION: ""
-
 jobs:
   # ===========================================================================
   # BUILD JOB: Compile OpenSSL with FIPS Module
@@ -507,17 +502,17 @@ jobs:
         }
       shell: powershell
 
-    - name: Generate Build Provenance Attestation
-      uses: actions/attest-build-provenance@v2
-      with:
-        subject-path: 'OpenSSL-FIPS-*.msi'
-
     - name: Upload MSI Installer
       uses: actions/upload-artifact@v4
       with:
         name: openssl-fips-installer
         path: "OpenSSL-FIPS-*.msi"
         retention-days: 90
+
+    - name: Generate Build Provenance Attestation
+      uses: actions/attest-build-provenance@v2
+      with:
+        subject-path: 'OpenSSL-FIPS-*.msi'
 
     - name: Create Release (on tag)
       if: startsWith(github.ref, 'refs/tags/')
