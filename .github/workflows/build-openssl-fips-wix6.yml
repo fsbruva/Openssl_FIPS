@@ -68,7 +68,7 @@ jobs:
         New-Item -ItemType Directory -Force -Path "$env:BUILD_DIR"
         New-Item -ItemType Directory -Force -Path "$env:BUILD_DIR\verification"
         New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR"
-        New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR\docs\"
+        New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR\docs"
         New-Item -ItemType Directory -Force -Path "$env:STAGING_DIR\lib\ossl-modules"
         New-Item -ItemType Directory -Force -Path "$env:FINAL_OPENSSLDIR"
         New-Item -ItemType Directory -Force -Path "$env:FINAL_OPENSSLDIR\lib\ossl-modules"

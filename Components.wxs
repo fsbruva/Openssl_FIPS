@@ -50,7 +50,7 @@
 	  </ComponentGroup>
 
 	  <!-- Build and Verification Documentation -->
-	  <ComponentGroup Id="DocsFolder" Directory="docs">
+	  <ComponentGroup Id="DocsFolder" Directory="OSSLDocsFolder">
 	
 		  <Component Id="SourceVerification" Guid="6410FBA1-59D4-475E-8F84-9E3ABF03318B">
 			  <File Id="SourceVerificationTxt" Name="source-verification.txt" Source="$(var.StagingDir)\docs\source-verification.txt" />
