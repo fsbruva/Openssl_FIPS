@@ -62,8 +62,7 @@ C:\Program Files\OpenSSL\
    gh release download --repo fsbruva/openssl-fips-windows-installer --pattern "*.msi"
    ```
 
-## Security Notice
-
+[!Security Notice]
 Windows may show a SmartScreen warning for new software. 
 
 2. **Verify the installer** (recommended):
@@ -147,6 +146,7 @@ This project is **exclusively built via GitHub Actions**. Local builds are not s
 - Click "I understand my workflows, go ahead and enable them"
 
 #### 3. Trigger a Build
+**Build time:** Approximately 50-60 minutes
 
 **Option A - Manual Trigger (Recommended):**
 - Actions tab → "Build OpenSSL FIPS (Windows x64)" → "Run workflow"
@@ -159,7 +159,6 @@ git tag -a v3.5.5-1 -m "OpenSSL 3.5.5 FIPS Installer"
 git push origin v3.5.5-1
 # Automatically creates GitHub Release
 ```
-**Build time:** Approximately 50-60 minutes
 
 #### 4. Download the MSI
 
@@ -168,6 +167,8 @@ git push origin v3.5.5-1
 
 **From releases (tags only):**
 - Releases section → Your tag → Download MSI from assets
+
+See previous section for installation guidance.
 
 ### Customization
 
