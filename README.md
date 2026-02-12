@@ -123,12 +123,6 @@ Conforms to [OpenSSL FIPS Security Policy](https://csrc.nist.gov/CSRC/media/proj
 
 ## 🛠️ Building from Source
 
-### Prerequisites
-
-- Git (for cloning the repository)
-
-## 🛠️ Building from Source
-
 ### Important: GitHub Actions Required
 
 This project is **exclusively built via GitHub Actions**. Local builds are not supported because the workflow:
