@@ -18,6 +18,7 @@
     <Feature Id="Main" Title="OpenSSL" Level="1">
 		<ComponentGroupRef Id="ProductComponents" />
 		<ComponentGroupRef Id="ProductModules" />
+		<ComponentGroupRef Id="DocsFolder" />
 		<ComponentGroupRef Id="ProgramMenuComponents" />
 		<ComponentRef Id="ApplicationShortcut" />
     </Feature>

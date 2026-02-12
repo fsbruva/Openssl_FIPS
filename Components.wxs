@@ -72,7 +72,7 @@
 			  <File Id="OpenSSLLicenseTxt" Name="OPENSSL_LICENSE.txt" Source="$(var.StagingDir)\docs\OPENSSL_LICENSE.txt" />
 		  </Component>
 
-		  <Component Id="DocReadme" Guid="5D5AE0D2-C6F5-43EA-92BA-52BD96F8D3D8">
+		  <Component Id="DocReadme" Guid="E22612C1-ACEE-4781-B32D-DFB9EB0E08FA">
 			  <File Id="DocReadmeTxt" Name="README.txt" Source="$(var.StagingDir)\docs\README.txt" />
 		  </Component>
 		  
