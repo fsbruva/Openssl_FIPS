@@ -18,10 +18,18 @@ on:
         description: 'OpenSSL version to build'
         required: false
         default: '3.5.5'
+      openssl_hash:
+        description: 'OpenSSL source tarball SHA256 hash'
+        required: false
+        default: 'b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89'
       fips_version:
-        description: 'FIPS module version'
+        description: 'OpenSSL FIPS module version'
         required: false
         default: '3.1.2'
+      fips_hash:
+        description: 'OpenSSL FIPS source tarball SHA256 hash'
+        required: false
+        default: 'a0ce69b8b97ea6a35b96875235aa453b966ba3cba8af2de23657d8b6767d6539'
 
 env:
   # Version Configuration
@@ -29,8 +37,8 @@ env:
   FIPS_VERSION: ${{ github.event.inputs.fips_version || '3.1.2' }}
   
   # Official OpenSSL SHA256 hashes from https://www.openssl.org/source/
-  OPENSSL_SHA256: "b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89"
-  FIPS_SHA256: "a0ce69b8b97ea6a35b96875235aa453b966ba3cba8af2de23657d8b6767d6539"
+  OPENSSL_SHA256: ${{ github.event.inputs.openssl_hash || 'b28c91532a8b65a1f983b4c28b7488174e4a01008e29ce8e69bd789f28bc2a89' }}
+  FIPS_SHA256: ${{ github.event.inputs.fips_hash || 'a0ce69b8b97ea6a35b96875235aa453b966ba3cba8af2de23657d8b6767d6539' }}
 
   # Directory Configuration
   BUILD_DIR: C:\build\src

@@ -127,22 +127,76 @@ Conforms to [OpenSSL FIPS Security Policy](https://csrc.nist.gov/CSRC/media/proj
 
 - Git (for cloning the repository)
 
+## 🛠️ Building from Source
+
+### Important: GitHub Actions Required
+
+This project is **exclusively built via GitHub Actions**. Local builds are not supported because the workflow:
+- Downloads OpenSSL sources directly from openssl.org and verifies them cryptographically
+- Compiles using GitHub-hosted Windows runners with pre-installed MSVC tools
+- Generates cryptographic attestations via GitHub's Sigstore integration
+- Automates all documentation and MSI packaging
+
+### Prerequisites
+
+- GitHub account (free)
+- Git (for cloning/forking)
+
 ### Build Steps
 
-1. **Clone the repository:**
-   ```powershell
-   git clone https://github.com/fsbruva/openssl-fips-windows-installer.git
-   cd openssl-fips-windows-installer
-   ```
+#### 1. Fork the Repository
+- Go to https://github.com/fsbruva/openssl-fips-windows-installer
+- Click "Fork" to create your own copy
 
-2. **Trigger GitHub Actions build:**
-   - Push to `main` or `develop` branch, OR
-   - Create a tag starting with `v` (e.g., `v1.0.0`), OR
-   - Manually trigger via Actions tab → "Run workflow"
+#### 2. Enable GitHub Actions
+- In your fork, go to "Actions" tab
+- Click "I understand my workflows, go ahead and enable them"
 
-3. **Download artifacts:**
-   - MSI installer available in GitHub Actions artifacts
-   - Releases created automatically for version tags
+#### 3. Trigger a Build
+
+**Option A - Manual Trigger (Recommended):**
+- Actions tab → "Build OpenSSL FIPS (Windows x64)" → "Run workflow"
+- Configure versions/hashes if desired
+- Click "Run workflow"
+
+**Option B - Create Release Tag:**
+```bash
+git tag -a v3.5.5-1 -m "OpenSSL 3.5.5 FIPS Installer"
+git push origin v3.5.5-1
+# Automatically creates GitHub Release
+```
+
+#### 4. Download the MSI
+
+**From workflow runs:**
+- Actions tab → Your workflow run → Artifacts → Download "openssl-fips-installer"
+
+**From releases (tags only):**
+- Releases section → Your tag → Download MSI from assets
+
+**Build time:** Approximately 50-60 minutes
+
+### Customization
+
+To change OpenSSL version, edit `.github/workflows/build-openssl-fips-wix6.yml`:
+```yaml
+env:
+  OPENSSL_VERSION: '3.5.6'        # Update version
+  OPENSSL_SHA256: "hash_here"     # Get from openssl.org/source
+```
+
+To change OpenSSL FIPS Provider version, edit `.github/workflows/build-openssl-fips-wix6.yml`:
+```yaml
+env:
+  FIPS_VERSION: '3.0.9'        # Update version
+  FIPS_SHA256: "hash_here"     # Get from openssl.org/source
+```
+
+To modify the installer, edit WiX source files (`Package.wxs`, `Components.wxs`).
+
+### Just Want Pre-Built Releases?
+
+Download from [Releases](https://github.com/fsbruva/openssl-fips-windows-installer/releases) - no building required!
 
 ## 📋 Build Process Overview
 
